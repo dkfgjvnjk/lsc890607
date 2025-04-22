@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>카카오맵 마커 예제</title>
+  <!-- 여기에 본인의 실제 앱키를 넣으세요 -->
   <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=df97b009e57c2e1a67abea7716764721"></script>
   <style>
     #map {
@@ -28,7 +29,7 @@
       center: new kakao.maps.LatLng(36.5, 127.5),
       level: 7
     };
-    
+
     const map = new kakao.maps.Map(mapContainer, mapOption);
 
     locations.forEach(loc => {
