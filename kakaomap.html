@@ -1,64 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<title>다음 지도 API</title>
+  <meta charset="utf-8">
+  <title>카카오맵 마커 + 내 위치</title>
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=df97b009e57c2e1a67abea7716764721"></script>
+  <style>
+    #map {
+      width: 100%;
+      height: 600px;
+      margin-top: 10px;
+    }
+    #controls {
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 8px 12px;
+      font-weight: bold;
+      margin-right: 10px;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
-	<div id="map" style="width:1000px;height:2000px;"></div>
+  <h2>CSV 파일로 마커 표시 + 현재 위치 보기</h2>
 
-	<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=df97b009e57c2e1a67abea7716764721"></script>
-	<script>
-		var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
-		    mapOption = {
-		        center: new kakao.maps.LatLng(36.1426292727442, 128.093681592565), // 지도의 중심좌표
-		        level: 4, // 지도의 확대 레벨
-		        mapTypeId : kakao.maps.MapTypeId.HYBRID // 지도종류
-		    }; 
+  <div id="controls">
+    <input type="file" id="fileInput" accept=".csv">
+    <button onclick="showCurrentLocation()">📍 내 위치 보기</button>
+  </div>
 
-		// 지도를 생성한다 
-		var map = new kakao.maps.Map(mapContainer, mapOption); 
+  <div id="map"></div>
 
-		// 지도 타입 변경 컨트롤을 생성한다
-		var mapTypeControl = new kakao.maps.MapTypeControl();
+  <script>
+    // 지도 생성
+    const mapContainer = document.getElementById('map');
+    const mapOption = {
+      center: new kakao.maps.LatLng(36.5, 127.5),
+      level: 7
+    };
+    const map = new kakao.maps.Map(mapContainer, mapOption);
 
-		// 지도의 상단 우측에 지도 타입 변경 컨트롤을 추가한다
-		map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);	
+    // CSV 파일 업로드 시 마커 표시
+    document.getElementById('fileInput').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-		// 지도에 확대 축소 컨트롤을 생성한다
-		var zoomControl = new kakao.maps.ZoomControl();
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const text = event.target.result;
+        const lines = text.split("\n").slice(1); // 헤더 제외
 
-		// 지도의 우측에 확대 축소 컨트롤을 추가한다
-		map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+        lines.forEach(line => {
+          const [name, lat, lng] = line.trim().split(',');
+          if (!name || !lat || !lng) return;
 
-                        // 마커 이미지의 주소
-		var markerImageUrl = 'https://cdn2.iconfinder.com/data/icons/august/PNG/Star%20Red.png', 
-		    markerImageSize = new kakao.maps.Size(25, 26), // 마커 이미지의 크기
-		    markerImageOptions = { 
-		        offset : new kakao.maps.Point(13, 12)// 마커 좌표에 일치시킬 이미지 안의 좌표
-		    };
+          const marker = new kakao.maps.Marker({
+            map: map,
+            position: new kakao.maps.LatLng(parseFloat(lat), parseFloat(lng)),
+            title: name
+          });
 
- 
-                        // 마커 이미지를 생성한다
-		var markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions);
+          const infowindow = new kakao.maps.InfoWindow({
+            content: `<div style="padding:5px;">${name}</div>`
+          });
 
-		// 지도에 마커를 생성하고 표시한다
-		var marker = new kakao.maps.Marker({
-		    position: new kakao.maps.LatLng(36.141984321563, 128.092940139507), // 마커의 좌표
-		    image : markerImage, // 마커의 이미지
-		    map: map // 마커를 표시할 지도 객체
-		});
-                        
-                        var marker1 = new kakao.maps.Marker({
-		    position: new kakao.maps.LatLng(36.1407680953186, 128.0925174164197), // 마커의 좌표
-		    image : markerImage, // 마커의 이미지
-		    map: map // 마커를 표시할 지도 객체
-		});
+          kakao.maps.event.addListener(marker, 'click', function () {
+            infowindow.open(map, marker);
+          });
+        });
+      };
+      reader.readAsText(file);
+    });
 
+    // 내 위치 보기 기능
+    function showCurrentLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
 
+          const locPosition = new kakao.maps.LatLng(lat, lng);
+          const message = '<div style="padding:5px;">📍 현재 위치</div>';
 
+          const marker = new kakao.maps.Marker({
+            position: locPosition,
+            map: map
+          });
 
+          const infowindow = new kakao.maps.InfoWindow({
+            content: message
+          });
+          infowindow.open(map, marker);
 
-	</script>
+          map.setCenter(locPosition);
+        }, function(error) {
+          alert('위치 정보를 가져올 수 없습니다. 브라우저 권한을 확인해주세요.');
+        });
+      } else {
+        alert('이 브라우저는 위치 정보 기능을 지원하지 않습니다.');
+      }
+    }
+  </script>
 </body>
 </html>
