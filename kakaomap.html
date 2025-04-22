@@ -30,6 +30,15 @@
 
 		// 지도의 우측에 확대 축소 컨트롤을 추가한다
 		map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+                        // 마커 이미지의 주소
+		var markerImageUrl = 'https://cdn2.iconfinder.com/data/icons/august/PNG/Star%20Red.png', 
+		    markerImageSize = new kakao.maps.Size(25, 26), // 마커 이미지의 크기
+		    markerImageOptions = { 
+		        offset : new kakao.maps.Point(13, 12)// 마커 좌표에 일치시킬 이미지 안의 좌표
+		    };
+
+ 
                         // 마커 이미지를 생성한다
 		var markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions);
 
