@@ -30,7 +30,15 @@
 
 		// 지도의 우측에 확대 축소 컨트롤을 추가한다
 		map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+                        // 마커 이미지를 생성한다
+		var markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions);
 
+		// 지도에 마커를 생성하고 표시한다
+		var marker = new kakao.maps.Marker({
+		    position: new kakao.maps.LatLng(36.141984321563, 128.092940139507), // 마커의 좌표
+		    image : markerImage, // 마커의 이미지
+		    map: map // 마커를 표시할 지도 객체
+		});
 	</script>
 </body>
 </html>
